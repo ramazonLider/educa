@@ -1,11 +1,14 @@
 from django.views.generic.list import ListView
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.list import ListView
 from .models import Course
 from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     PermissionRequiredMixin
 )
+from django.db.models import Count
+from .models import Subject, Module, Content
 from students.forms import CourseEnrollForm
 from .forms import ModuleFormSet
 from django.shortcuts import get_object_or_404, redirect
@@ -14,6 +17,7 @@ from django.apps import apps
 from django.forms.models import modelform_factory
 from django.views.generic.detail import DetailView
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
+
 
 class ModuleOrderView(CsrfExemptMixin, JsonRequestResponseMixin, View):
     def post(self, request):
@@ -198,3 +202,29 @@ class CourseDetailView(DetailView):
            initial={'course':self.object}
        )
        return context
+
+class StudentCourseListView(LoginRequiredMixin, ListView):
+    model = Course
+    template_name = 'students/course/list.html'
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(students__in=[self.request.user])
+
+from django.views.generic.detail import DetailView
+class StudentCourseDetailView(LoginRequiredMixin, DetailView):
+    model = Course
+    template_name = 'students/course/detail.html'
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(students__in=[self.request.user])
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        course = self.get_object()
+        if 'module_id' in self.kwargs:
+            context['module'] = course.modules.get(
+                id=self.kwargs['module_id']
+            )
+        else:
+            context['module'] = course.modules.all()[0]
+        return context

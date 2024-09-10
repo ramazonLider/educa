@@ -1,5 +1,5 @@
 import os
-
+from django.urls import reverse_lazy
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'courses.apps.CoursesConfig',
     'students.apps.StudentsConfig',
+    'embed_video',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +61,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'educa.wsgi.application'
+LOGIN_REDIRECT_URL = reverse_lazy('student_course_list')
 
 
 # Database
