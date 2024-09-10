@@ -1,3 +1,4 @@
+{% load cache %}
 {% extends "base.html" %}
 {% block title %}
   {{ object.title }}
@@ -8,6 +9,11 @@
 </h1>
 <div class="contents">
   <h3>Modules</h3>
+  <h3>
+    <a href="{% url "chat:course_chat_room" object.id %}">
+      Course chat room
+    </a>
+  </h3>
   <ul id="modules">
     {% for m in object.modules.all %}
       <li data-id="{{ m.id }}" {% if m == module %}class="selected"{% endif%}>
@@ -24,11 +30,13 @@
   </ul>
 </div>
 <div class="module">
-  {% for content in module.contents.all %}
-    {% with item=content.item %}
-      <h2>{{ item.title }}</h2>
-      {{ item.render }}
-    {% endwith %}
-  {% endfor %}
+  {% cache 600 module_contents module %}
+    {% for content in module.contents.all %}
+      {% with item=content.item %}
+        <h2>{{ item.title }}</h2>
+        {{ item.render }}
+      {% endwith %}
+    {% endfor %}
+  {% endcache %}
 </div>
 {% endblock %}
