@@ -18,6 +18,11 @@ class Course(models.Model):
         related_name='courses_created',
         on_delete=models.CASCADE
     )
+    students = models.ManyToManyField(
+    User,
+    related_name='courses_joined',
+    blank=True
+    )
     subject = models.ForeignKey(
         Subject,
         related_name='courses',
@@ -43,7 +48,7 @@ class Module(models.Model):
 
     class Meta:
         ordering = ['order']
-    
+
     def __str__(self):
         return f'{self.order}. {self.title}'
 
